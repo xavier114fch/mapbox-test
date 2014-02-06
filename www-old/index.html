@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <title>MapBox Test</title>
+        <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+        <script type="text/javascript" charset="utf-8" src="cordova_plugins.js"></script>
+        <script type="text/javascript" charset="utf-8" src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+        <script type="text/javascript" charset="utf-8" src="http://code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.js"></script>
+        <script type="text/javascript" charset="utf=8" src="js/script.js"></script>
+        <script type="text/javascript" charset="utf-8" src="http://api.tiles.mapbox.com/mapbox.js/v1.5.2/mapbox.js"></script>
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.css" />
+        <link rel="stylesheet" href="http://api.tiles.mapbox.com/mapbox.js/v1.5.2/mapbox.css" />
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+    <body>
+        <div id="map">
+            <div id="overlays">
+                <a id="cog" href="#settings" data-rel="popup" data-position-to="window" data-history="true" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-gear ui-btn-icon-left">Settings</a>
+                <div id="settings" data-role="popup" data-dismissible="false" class="ui-corner-all">
+                    <div data-role="header">
+                        <h1>Settings</h1>
+                    </div>
+                    <div role="main" class="ui-content">
+                        <form>
+                            <div id="controls">
+                                <label for="toggleGPS">Track GPS location:</label>
+                                <select name="toggleGPS" id="toggleGPS" data-role="slider">
+                                    <option value="off">Off</option>
+                                    <option value="on" selected="selected">On</option>
+                                </select>
+                                <label for="toggleDistance">Distance to cover (km):</label>
+                                <input name="toggleDistance" id="toggleDistance" value="5" min="1" max="10" type="range" />
+                            </div>
+                            <div id="buttons">
+                                <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">OK</a>
+                                <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" charset="utf-8">
+            // Create the map and the default marker
+            var map = L.mapbox.map('map', 'examples.map-9ijuk24y');
+            var markerLayer = L.mapbox.markerLayer();
+        </script>
+    </body>
+</html>

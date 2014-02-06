@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <title>MapBox Test</title>
+        <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+        <script type="text/javascript" charset="utf-8" src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+        <script type="text/javascript" charset="utf-8" src="http://code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.js"></script>
+        <script type="text/javascript" charset="utf-8" src="http://api.tiles.mapbox.com/mapbox.js/v1.5.2/mapbox.js"></script>
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.css" />
+        <link rel="stylesheet" href="http://api.tiles.mapbox.com/mapbox.js/v1.5.2/mapbox.css" />
+        <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+    <body>
+        <div id="map">
+            <div id="overlays">
+                <a id="cog" href="#settings" data-rel="popup" data-position-to="window" data-history="true" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-gear ui-btn-icon-left ui-btn-a">Settings</a>
+                <div data-role="popup" id="settings" class="ui-corner-all">
+                    <p>Something there</p>
+                </div>
+            </div>
+        </div>
+        <div id="cog">
+        </div>
+        <script type="text/javascript" charset="utf-8">
+            // Create the map and the default marker
+            var map = L.mapbox.map('map', 'examples.map-9ijuk24y');
+            var markerLayer = L.mapbox.markerLayer();
+
+            // Add a watch ID for geolocation function
+            var watchId = null;
+
+            // Add device ready listener
+            document.addEventListener('deviceready', onDeviceReady, false);
+
+            function onDeviceReady() {
+                $('#cog').click(function() {
+                    $('#menu').slideToggle('fast');
+                });
+
+                watchId = navigator.geolocation.watchPosition(getPosSuccess, getPosError, { enableHighAccuracy: true, maximumAge: 5000, timeout: 3000 });
+                $('#toggleWatch').html('Disable Location Watching');
+
+                $('#toggleWatch').click(function() {
+                    console.log('Clicked');
+                    if (watchId != null) {
+                        console.log('Disable');
+                        navigator.geolocation.clearWatch(watchId);
+                        watchId = null;
+                        $('#toggleWatch').html('Disable Location Watching');
+                    } else {
+                        console.log('Enable');
+                        watchId = navigator.geolocation.watchPosition(getPosSuccess, getPosError, { enableHighAccuracy: true, maximumAge: 5000, timeout: 3000 });
+                        $('#toggleWatch').html('Disable Location Watching');
+                    }
+                    return false;
+                });
+            }
+
+            function getPosSuccess(position) {
+                // Get the lat/lon position
+                var lat = position.coords.latitude;
+                var lon = position.coords.longitude;
+                var reverseGeocoder = 'http://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=' + lat + '&lon=' + lon;
+                var geojson = [];
+                var distance = 5;
+
+                $.getJSON(reverseGeocoder, function(result) {
+                    console.log(">>>>> Reverse Geocoding <<<<<");
+                    // console.log(JSON.stringify(result, null, '\t'))
+                    geojson.push({
+                        'type': 'Feature',
+                         'geometry': {
+                            'type': 'Point',
+                            'coordinates': [lon, lat]
+                        },
+                        'properties': {
+                            'title': 'Your current location',
+                            'description': result.display_name,
+                            'marker-color': '#fc4353',
+                            'marker-size': 'large',
+                            'marker-symbol': 'star'
+                        }
+                    });
+
+                    /*
+                    The code below is a JavaScript port of the original Java code by Jan Philip Matuschek, which was originally published at:
+
+                    http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates
+                    */
+
+                    // Contants for min/max lat/lng values
+                    var MIN_LAT = -Math.PI / 2;
+                    var MAX_LAT = Math.PI / 2;
+                    var MIN_LON = -Math.PI;
+                    var MAX_LON = Math.PI;
+
+                    // Radius of the Earth
+                    var EARTH_RADIUS = 6371.009;
+
+                    // Converts from degrees to radians
+                    Math.radians = function(degrees) {
+                      return degrees * Math.PI / 180;
+                    };
+                     
+                    // Converts from radians to degrees
+                    Math.degrees = function(radians) {
+                      return radians * 180 / Math.PI;
+                    };
+
+                    // Calculate the distance between 2 known points. All in radians
+                    function distanceTo(lat1, lat2, lon1, lon2, r) {
+                        return Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon1 - lon2)) * r;
+                    }
+
+                    // Calculate the bounding coordinates of some distance from a point. All in radians
+                    function boundingCoords(lat, lon, d, r) {
+                        var radDist = d / r;
+
+                        var minLat = lat - radDist;
+                        var maxLat = lat + radDist;
+
+                        var minLon, maxLon;
+                        if ((minLat > MIN_LAT) && (maxLat < MAX_LAT)) {
+                            var deltaLon = Math.asin(Math.asin(radDist) / Math.cos(lat));
+
+                            minLon = lon - deltaLon;
+                            (minLon < MIN_LON) ? minLon += 2 * Math.PI : minLon;
+
+                            maxLon = lon + deltaLon;
+                            (maxLon > MAX_LON) ? maxLon -= 2 * Math.PI : maxLon;
+                        } else {
+                            minLat = Math.max(minLat, MIN_LAT);
+                            maxLat = Math.min(maxLat, MAX_LAT);
+                            minLon = MIN_LON;
+                            maxLon = MAX_LON;
+                        }
+
+                        return {
+                            'south': minLat,
+                            'west': minLon,
+                            'north': maxLat,
+                            'east': maxLon
+                        };
+                    }
+
+                    var bounding = boundingCoords(Math.radians(lat), Math.radians(lon), distance, EARTH_RADIUS);
+                    var south = Math.degrees(bounding.south);
+                    var west = Math.degrees(bounding.west);
+                    var north = Math.degrees(bounding.north);
+                    var east = Math.degrees(bounding.east);
+
+                    var overpass = 'http://overpass.osm.rambler.ru/cgi/interpreter?data=[out:json];node["tourism"="hotel"](' + south + ',' + west +',' + north + ','+ east + ');out body;';
+                    console.log(overpass);
+
+                    $.getJSON(overpass, function(result) {
+                        console.log(">>>>> Number of results = " + result.elements.length + " <<<<<");
+                        // console.log(JSON.stringify(result, null, '\t'))
+                        var elements = result.elements;
+                        for (var i in elements) {
+                            geojson.push({
+                                'type': 'Feature',
+                                'geometry': {
+                                    'type': 'Point',
+                                    'coordinates': [elements[i].lon, elements[i].lat]
+                                },
+                                'properties': {
+                                    'title': elements[i].tags.name,
+                                    'marker-color': '#0000ff',
+                                    'marker-size': 'medium',
+                                    'marker-symbol': 'lodging'
+                                }
+                            });
+                        }
+
+                        // console.log(JSON.stringify(geojson, null, '\t'));
+                        (markerLayer != null) ? markerLayer.clearLayers() : markerLayer;
+                        markerLayer.setGeoJSON(geojson).addTo(map);
+                        // map.fitBounds(markerLayer.getBounds());
+                        map.setView([lat, lon], 17);
+                    });
+                });
+            }
+
+            function getPosError(error) {
+                console.log('Code: ' + error.code + '. Message: ' + error.message + '\n');
+                if (error.code != 3)
+                    alert('Code: ' + error.code + '. Message: ' + error.message + '\n');
+            }
+        </script>
+    </body>
+</html>

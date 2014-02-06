@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <title>MapBox Test</title>
+        <script type="text/javascript" charset="utf-8" src="cordova.js"></script> 
+        <script type="text/javascript" charset="utf-8" src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+        <script type="text/javascript" charset="utf-8" src="http://api.tiles.mapbox.com/mapbox.js/v1.5.2/mapbox.js"></script>
+        <link rel="stylesheet" href="http://api.tiles.mapbox.com/mapbox.js/v1.5.2/mapbox.css" />
+        <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="css/style.css" /> 
+    </head>
+    <body>
+        <div id="map"></div>
+        <div id="nav">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-square fa-stack-2x"></i>
+                <i class="fa fa-cog fa-stack-1x fa-inverse"></i>
+            </span>
+        </div>
+        <script type="text/javascript" charset="utf-8">
+            var map = L.mapbox.map('map', 'examples.map-9ijuk24y'),
+                markerLayer = L.mapbox.markerLayer();
+            // Create the map and the default marker
+            var lat = 114.2;
+            var lon = 22.4;
+            var reverseGeocoder = 'http://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lon;
+            var geocoder = 'http://nominatim.openstreetmap.org/search?q=atm&format=json&bounded=1&addressdetails=1&viewbox=' + lon * 1.001 + ',' + lat * 1.01 + ',' + lon * 0.999 + ',' + lat * 0.99;
+            var geojson = [];
+
+                $.getJSON(reverseGeocoder, function(result) {
+                    console.log(result.display_name);
+                    geojson.push({
+                            'type': 'Feature',
+                            'geometry': {
+                                'type': 'Point',
+                                'coordinates': [lon, lat]
+                            },
+                            'properties': {
+                                'title': 'Your current location',
+                                'description': result.display_name,
+                                'marker-color': '#fc4353',
+                                'marker-size': 'large',
+                                'marker-symbol': 'star'
+                            }
+                        });
+                });
+
+                // console.log(geocoder);
+
+                $.getJSON(geocoder, function(results) {
+                    console.log(JSON.stringify(results, null, '\t'));
+                    for (var i in results) {
+                        geojson.push({
+                            'type': 'Feature',
+                            'geometry': {
+                                'type': 'Point',
+                                'coordinates': [results[i].lon, results[i].lat]
+                            },
+                            'properties': {
+                                'title': 'ATM',
+                                'description': results[i].display_name,
+                                'marker-color': '#fc4353',
+                                'marker-size': 'small',
+                                'marker-symbol': 'bank'
+                            }
+                        });
+                    }
+
+                    console.log(JSON.stringify(geojson, null, '\t'));
+                });
+
+                if (markerLayer != null) 
+                    markerLayer.clearLayers();
+                markerLayer.setGeoJSON(geojson).addTo(map);
+                map.setView([lat, lon], 15);
+
+        </script>
+    </body>
+</html>

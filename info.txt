@@ -1,0 +1,70 @@
+Useful Information For Submitting Bug Reports and Getting Help
+
+Current Node Version
+
+    v0.10.23
+
+
+Current Cordova CLI Version
+
+    3.3.0-0.1.1
+
+Current Config.xml
+
+    <?xml version='1.0' encoding='utf-8'?>
+<widget id="com.appcastnet.mapBoxTest" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>MapBox Test</name>
+    <description>
+        Test loading of MapBox maps in Cordova.
+    </description>
+    <author email="dev@cordova.apache.org" href="http://cordova.io">
+        AppCastNet
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+    <feature name="Geolocation">
+    		<param name="android-package" value="org.apache.cordova.geolocation.GeoBroker" />
+	</feature>
+</widget>
+
+
+Currently Installed Platforms
+
+    
+
+    android
+
+    Available Android targets:
+----------
+id: 1 or "android-19"
+     Name: Android 4.4
+     Type: Platform
+     API level: 19
+     Revision: 1
+     Skins: HVGA, WXGA720, QVGA, WXGA800-7in, WQVGA400, WXGA800, WVGA800 (default), WSVGA, WQVGA432, WVGA854
+     ABIs : armeabi-v7a, x86
+----------
+id: 2 or "Google Inc.:Google APIs:19"
+     Name: Google APIs
+     Type: Add-On
+     Vendor: Google Inc.
+     Revision: 1
+     Description: Android + Google APIs
+     Based on Android 4.4 (API level 19)
+     Libraries:
+      * com.google.android.media.effects (effects.jar)
+          Collection of video effects
+      * com.android.future.usb.accessory (usb.jar)
+          API for USB Accessories
+      * com.google.android.maps (maps.jar)
+          API for Google Maps
+     Skins: WVGA854, WQVGA400, WSVGA, WXGA800-7in, WXGA720, HVGA, WQVGA432, WVGA800 (default), QVGA, WXGA800
+     ABIs : armeabi-v7a
+
+
+
+
+
+Currently Installed Plugins
+
+    org.apache.cordova.geolocation
